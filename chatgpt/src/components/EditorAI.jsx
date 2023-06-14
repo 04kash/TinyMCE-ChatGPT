@@ -29,20 +29,20 @@ function EditorAI(){
       icon: "highlight-bg-color",
       tooltip: "Highlight a prompt and click this button to query ChatGPT",
       enabled: true,
-      onAction: () => {editor.selection.collapse();
+      onAction: () => {
+              llm.chat({
+              messages: [{ role: "user", content: editor.selection.getContent()}],
+              stream: true,
+              onStream: ({ message }) => setResult(message.content)})
+              editor.selection.collapse();
               editor.execCommand('InsertHTML', false, '<div class="answer"></div>');
               editor.insertContent(result);
-              llm.chat({
-              messages: [{ role: "user", content: editor.selection.getContent() }],
-              stream: true,
-              onStream: ({ message }) => setResult(message.content)})}
-              
-              
+              }
               
           });
   
           }
-        }} />
+        }} /><div>{result}</div>
         </div>)
 }
 
