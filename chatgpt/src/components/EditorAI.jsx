@@ -23,29 +23,31 @@ function EditorAI(){
       <Editor
          apiKey="3kwyco0zldkd0ugbqinyz3bgpdqlaiszz61uijjofpqkx6ok"
         initialValue= "<p>This is the initial content of the editor.</p>"
-        id = "ID"
         init={{
           height: 500,
           menubar: false,
           plugins: [
             'advlist autolink lists link image charmap print preview anchor',
             'searchreplace visualblocks code fullscreen',
-            'insertdatetime media table paste code help wordcount'
+            'insertdatetime media table paste code help wordcount','textpattern'
           ],
+          //textpattern_patterns: [
+        //{start: '##',cmd:'send'},
+
+    //],
           toolbar: 'undo redo | formatselect | ' +
           'bold italic backcolor | alignleft aligncenter ' +
           'alignright alignjustify | bullist numlist outdent indent | AskChatGPT' ,
           content_style: 'div.answer { font-family: Consolas,monaco,monospace;  background-color: black; color: white; padding: 2px; }',
-          setup: (editor) => {
+          setup: function (editor) {
   
-      editor.ui.registry.addButton('AskChatGPT', {text: "Ask ChatGPT",
-      icon: "highlight-bg-color",
+       editor.ui.registry.addButton('AskChatGPT', {text: "Ask ChatGPT",
+        icon: "highlight-bg-color",
       tooltip: "Highlight a prompt and click this button to query ChatGPT",
       enabled: true,
-      onAction: () =>  handleClick(editor)
-         
-      
-        })}
+      onAction: () =>  handleClick(editor)}
+       )
+      }
           }}
   
           
