@@ -21,7 +21,7 @@ function EditorAI(){
     return (
       <div>
       <Editor
-         apiKey="3kwyco0zldkd0ugbqinyz3bgpdqlaiszz61uijjofpqkx6ok"
+         apiKey="API-KEY"
         initialValue= "<p>This is the initial content of the editor.</p>"
         init={{
           height: 500,
