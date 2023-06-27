@@ -1,10 +1,10 @@
-import {React, useState} from 'react';
+import {React} from 'react';
 import {Editor} from '@tinymce/tinymce-react';
 import useLLM from "usellm";
 import '../App.css';
 function EditorAI(){
     const llm = useLLM({ serviceUrl: "https://usellm.org/api/llm" });
-    const [result, setResult] = useState("");
+    
         
 
 
@@ -34,12 +34,10 @@ function EditorAI(){
         // Register ChatGPT's reply
         editor.addCommand('reply', async function () {
       
-         await llm.chat({
+         const { message } = await llm.chat({
           messages: [{ role: "user", content: editor.getContent()}],
-          stream: true,
-        onStream: ({ message }) => setResult(message.content),
         });
-         editor.dom.add(editor.getBody(),'div', {class:"answer"},result)
+         editor.dom.add(editor.getBody(),'div', {class:"answer"},message.content)
         editor.dom.add(editor.getBody(), 'p', { }, 'Next prompt?')
       }
       );
