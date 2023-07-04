@@ -18,6 +18,8 @@ function EditorAI(){
         var parentNode = desiredTag.parentNode
         parentNode.replaceChild(newElement,desiredTag)
         editorRef.current.editor.setContent(tempElement.innerHTML)
+        editorRef.current.editor.dom.remove('div.square')
+        
       }
     }, [image]);
   
@@ -50,7 +52,9 @@ function EditorAI(){
         editor.addCommand('reply', async function () {
       
          const { message } = await llm.chat({
-          messages: [{ role: "user", content: editor.getContent({format : 'text'})}],
+          messages: [{ role: "user", 
+          stream: true,
+          content: editor.getContent({format : 'text'})}],
         });
          editor.dom.add(editor.getBody(),'div', {class:"answer"},message.content)
         editor.dom.add(editor.getBody(), 'p', { }, 'Next prompt?')
