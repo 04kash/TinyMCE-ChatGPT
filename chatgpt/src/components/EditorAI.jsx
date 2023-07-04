@@ -9,24 +9,26 @@ function EditorAI(){
     const editorRef = useRef('')
     useEffect(() => {
       if (editorRef.current && image) {
-        const content = editorRef.current.editor.getContent()
-        var tempElement = document.createElement('div');
-        tempElement.innerHTML = content;
-        var desiredTag = tempElement.querySelector('.square');
-        var newElement = document.createElement('img');
-        newElement.setAttribute('src', image);
-        var parentNode = desiredTag.parentNode
-        parentNode.replaceChild(newElement,desiredTag)
-        editorRef.current.editor.setContent(tempElement.innerHTML)
-        editorRef.current.editor.dom.remove('div.square')
-        
+        // const content = editorRef.current.editor.getContent()
+        // var tempElement = document.createElement('div');
+        // tempElement.innerHTML = content;
+        // var placeHolder = tempElement.querySelector('.square');
+        // var newElement = document.createElement('img');
+        // newElement.setAttribute('src', image);
+        // var parentNode = placeHolder.parentNode
+        // parentNode.replaceChild(newElement,placeHolder)
+        // editorRef.current.editor.setContent(tempElement.innerHTML)
+        editorRef.current.editor.selection.setContent(
+          `<img src="${image}" width="256" height="256">`
+        );
+        editorRef.current.editor.dom.remove('placeHolder')
       }
     }, [image]);
   
     return (
       <div>
       <Editor
-         apiKey="API-KEY"
+         apiKey=""
         initialValue= "<p>This is the initial content of the editor.</p>"
         ref = {editorRef}
         init={{
@@ -62,7 +64,7 @@ function EditorAI(){
       );
       //Image generation
       editor.addCommand('image',  async function () {
-      editor.dom.add(editor.getBody(),'div', {class:"square"},'Generating...')
+      editor.dom.add(editor.getBody(),'div', {class:"square", id:"placeHolder"},'Generating...')
       const prompt = editor.getContent({format:'text'})
       const { images } = await llm.generateImage({prompt});
       setImage(images[0])
