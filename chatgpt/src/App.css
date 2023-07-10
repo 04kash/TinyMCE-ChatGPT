@@ -46,3 +46,12 @@
   align-items: center;
 }
 .square:after{content:'Generating...'}
+
+.llm-buttons {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 2000;
+}
