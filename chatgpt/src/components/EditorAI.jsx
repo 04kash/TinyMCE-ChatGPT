@@ -194,7 +194,7 @@ function EditorAI(){
   
     return (
       <div>
-      {/* <div className="llm-buttons">
+       <div className="llm-buttons">
                 <ButtonGroup
                   size="sm"
                   style={{
@@ -212,7 +212,7 @@ function EditorAI(){
                     Stop Generating
                   </Button>
                 </ButtonGroup>
-                <ButtonGroup
+                {/*<ButtonGroup
                   size="sm"
                   style={{
                     visibility: llmButtonsVisible ? "visible" : "hidden",
@@ -245,8 +245,8 @@ function EditorAI(){
                   >
                     Discard
                   </Button>
-                </ButtonGroup> 
-              </div> */}
+                </ButtonGroup> */}
+              </div> 
               <Editor
          apiKey=""
         initialValue= "<p>This is the initial content</p>"
@@ -291,13 +291,13 @@ function EditorAI(){
                       text: 'Discard',
                       onAction: handleLlmButtonDiscard}
                     )
-      editor.ui.registry.addContextToolbar('textselection', {
+      editor.ui.registry.addContextToolbar('text', {
       predicate: (node) => editor.dom.hasClass(node,'llmparagraph'),
       items: 'Insert Adjust Discard',
       position: 'node',
       scope: 'node'
     });
-    editor.ui.registry.addContextToolbar('imagealignment',{
+    editor.ui.registry.addContextToolbar('image',{
       predicate: (node) => editor.dom.hasClass(node,'currImg'),
       items: 'Insert Adjust Discard',
       position: 'node',
