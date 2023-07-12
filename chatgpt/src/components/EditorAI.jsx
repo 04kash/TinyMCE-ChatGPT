@@ -6,6 +6,7 @@ import PlaceHolder from '../components/placeHolderImg.png';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 
+
 function EditorAI(){
   const llm = useLLM({ serviceUrl: "https://usellm.org/api/llm" });
   const editorRef = useRef('')
@@ -93,6 +94,7 @@ function EditorAI(){
           setLlmImage("");
           const { images } = await llm.generateImage({ prompt: promptText });
           setLlmImage(images[0]);
+          
         } else {
           setLlmImage("");
           setLlmContinue(true);
@@ -122,22 +124,22 @@ function EditorAI(){
   
     const handleLlmButtonAdjust = () => {
       console.log("llm adjust button clicked");
-      console.log('llmPrompt:')
-        console.log(llmPrompt)
+      //console.log('llmPrompt:')
+        //console.log(llmPrompt)
       editorRef.current.editor.dom.setHTML(
         editorRef.current.editor.dom.select(".llmparagraph"),
-        "@ai " + llmPrompt
+        "@ai " + editorRef.current.props.prompt
       );
       editorRef.current.editor.dom.removeClass(
         editorRef.current.editor.dom.select(".llmparagraph"),
         "llmparagraph"
       );
-      if (llmPrompt.includes("image") || llmPrompt.includes("picture")) {
+      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
         editorRef.current.editor.dom.remove(
           editorRef.current.editor.dom.select(".currImg")
         );
           editorRef.current.editor.selection.setContent(
-          "@ai " + llmPrompt
+          "@ai " + editorRef.current.props.prompt
         );
       }
       setLlmButtonsVisible(false);
@@ -150,7 +152,8 @@ function EditorAI(){
         editorRef.current.editor.dom.select(".llmparagraph"),
         "llmparagraph"
       );
-      if (llmPrompt.includes("image") || llmPrompt.includes("picture")) {
+      //console.log(editorRef.current.props.prompt)
+      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
         editorRef.current.editor.dom.removeClass(
           editorRef.current.editor.dom.select(".shadow"),
           "shadow"
@@ -170,7 +173,7 @@ function EditorAI(){
       editorRef.current.editor.dom.remove(
         editorRef.current.editor.dom.select(".llmparagraph")
       );
-      if (llmPrompt.includes("image") || llmPrompt.includes("picture")) {
+      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
         editorRef.current.editor.dom.remove(
           editorRef.current.editor.dom.select(".currImg")
         );
@@ -186,14 +189,12 @@ function EditorAI(){
         // editorRef.current.editor.dom.removeClass(nodeArray, "answer");
         // editorRef.current.editor.dom.removeAllAttribs("llmresult");
         setLlmStopButtonVisible(false);
-      console.log("llmPrompt Inside Stop:")
-      console.log(llmPrompt)
     };
   
   
     return (
       <div>
-      <div className="llm-buttons">
+      {/* <div className="llm-buttons">
                 <ButtonGroup
                   size="sm"
                   style={{
@@ -244,11 +245,13 @@ function EditorAI(){
                   >
                     Discard
                   </Button>
-                </ButtonGroup>
-              </div><Editor
-         apiKey=""
+                </ButtonGroup> 
+              </div> */}
+              <Editor
+         apiKey="3kwyco0zldkd0ugbqinyz3bgpdqlaiszz61uijjofpqkx6ok"
         initialValue= "<p>This is the initial content</p>"
         ref = {editorRef}
+        prompt = {llmPrompt}
         init={{
           height: 500,
           selector: 'div',
@@ -275,7 +278,32 @@ function EditorAI(){
                       console.log(promptNode.textContent)
                       console.log(promptNode)
                       getLLMResult(promptText, promptNode);
-                    })}
+                    })
+                    editor.ui.registry.addButton('Insert',{
+                      text: 'Insert',
+                      onAction: handleLlmButtonInsert}
+                    )
+                    editor.ui.registry.addButton('Adjust',{
+                      text: 'Adjust',
+                      onAction: handleLlmButtonAdjust}
+                    )
+                    editor.ui.registry.addButton('Discard',{
+                      text: 'Discard',
+                      onAction: handleLlmButtonDiscard}
+                    )
+      editor.ui.registry.addContextToolbar('textselection', {
+      predicate: (node) => editor.dom.hasClass(node,'llmparagraph'),
+      items: 'Insert Adjust Discard',
+      position: 'node',
+      scope: 'node'
+    });
+    editor.ui.registry.addContextToolbar('imagealignment',{
+      predicate: (node) => editor.dom.hasClass(node,'currImg'),
+      items: 'Insert Adjust Discard',
+      position: 'node',
+      scope: 'node'
+    });
+                    }
           }}
 
       
