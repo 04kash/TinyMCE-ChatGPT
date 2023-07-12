@@ -248,7 +248,7 @@ function EditorAI(){
                 </ButtonGroup> 
               </div> */}
               <Editor
-         apiKey="3kwyco0zldkd0ugbqinyz3bgpdqlaiszz61uijjofpqkx6ok"
+         apiKey=""
         initialValue= "<p>This is the initial content</p>"
         ref = {editorRef}
         prompt = {llmPrompt}
