@@ -21,18 +21,21 @@ function EditorAI(){
   const [llmStreaming, setLlmStreaming] = useState(false);
   const [llmImage, setLlmImage] = useState("");
   const [llmContinue, setLlmContinue] = useState(true);
+ 
 
-
-    
+  
   
   useEffect(() => {
     if (llmStreaming && llmContinue && editorRef !== "") {
       const nodeArray = editorRef.current.editor.dom.select(".answer");
-      //console.log(nodeArray)
-      //console.log("Result:")
-      //console.log(llmResult)
+    
+      console.log(nodeArray)
+      console.log(llmResult)
       setLlmStopButtonVisible(true);
       updateLlmButtonLocation();
+      let index = Math.max.apply(null, Object.keys(llmResult))
+      console.log('arry:')
+      console.log(Object.keys(llmResult))
       if (nodeArray) {
         let node = nodeArray[0];
         editorRef.current.editor.dom.addClass(node, "llmparagraph");
@@ -41,7 +44,7 @@ function EditorAI(){
           node,
           "span",
           { id: "llmresult" },
-          llmResult.replace(/(?:\r\n|\r|\n)/g, "<br>")
+          llmResult[index]['result'].replace(/(?:\r\n|\r|\n)/g, "<br>")
         );
       }
     }
@@ -58,6 +61,8 @@ function EditorAI(){
       editorRef.current.editor.dom.remove('placeHolder')
     }
   }, [llmImage]);
+
+
 
   useEffect(() => {
     if (!llmStreaming && llmPrompt !== '') {
@@ -81,6 +86,8 @@ function EditorAI(){
         }
       }
     };
+
+ 
   
     async function getLLMResult(promptText, promptNode) {
       if(editorRef !== ''){
@@ -98,7 +105,19 @@ function EditorAI(){
           setLlmImage(images[0]);
           
         } else {
-          //let currRe
+          console.log('in getLLmResult:')
+          console.log(llmResult)
+          
+          let newResult = Object.assign(llmResult)
+          console.log(newResult)
+          let index = 0
+          if(Object.keys(newResult).length === 0){
+            index = 0;
+          }else{
+            index = Math.max.apply(null, Object.keys(llmResult))
+            console.log('arry:')
+            console.log(Object.keys(newResult))
+          }
           setLlmImage("");
           setLlmContinue(true);
           console.log('PromptText before streaming:')
@@ -107,12 +126,13 @@ function EditorAI(){
             messages: [{ role: "user", content: promptText }],
             stream: true,
             onStream: ({ message }) => {
-              setLlmResult(message.content);
-              setLlmStreaming(true);
+                newResult[index+1] = {result:message.content}
+                setLlmResult(newResult)
+                setLlmStreaming(true);
             },
-            // stop: true,
           });
         }
+        
       } catch (error) {
         console.error("Something went wrong!", error);
       } finally {
@@ -120,6 +140,7 @@ function EditorAI(){
         const nodeArray = editorRef.current.editor.dom.select(".answer");
         editorRef.current.editor.dom.removeClass(nodeArray, "answer");
         editorRef.current.editor.dom.removeAllAttribs("llmresult");
+       
         setLlmPrompt(promptText);
         setLlmButtonsVisible(true);
         setLlmStopButtonVisible(false);
@@ -252,7 +273,7 @@ function EditorAI(){
                 </ButtonGroup> */}
               </div> 
               <Editor
-         apiKey={process.env.REACT_APP_API_KEY}
+         apiKey=""
         initialValue= "<p>This is the initial content</p>"
         ref = {editorRef}
         prompt = {llmPrompt}
