@@ -252,7 +252,7 @@ function EditorAI(){
                 </ButtonGroup> */}
               </div> 
               <Editor
-         apiKey=""
+         apiKey={process.env.REACT_APP_API_KEY}
         initialValue= "<p>This is the initial content</p>"
         ref = {editorRef}
         prompt = {llmPrompt}
