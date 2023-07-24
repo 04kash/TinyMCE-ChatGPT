@@ -21,8 +21,8 @@ function EditorAI(){
   const [llmStreaming, setLlmStreaming] = useState(false);
   const [llmImage, setLlmImage] = useState("");
   const [llmContinue, setLlmContinue] = useState(true);
-
-
+  const [llmPrompts, setLlmPrompts] = useState([])
+  const [llmId, setLlmId] = useState([])
     
   
   useEffect(() => {
@@ -30,13 +30,17 @@ function EditorAI(){
       const nodeArray = editorRef.current.editor.dom.select(".answer");
       //console.log(nodeArray)
       //console.log("Result:")
-      //console.log(llmResult)
       setLlmStopButtonVisible(true);
+      const nodeId = 'id'+llmId[llmId.length-1]
       updateLlmButtonLocation();
       if (nodeArray) {
         let node = nodeArray[0];
         editorRef.current.editor.dom.addClass(node, "llmparagraph");
+        editorRef.current.editor.dom.addClass(node,`${nodeId}`)
         editorRef.current.editor.dom.remove("llmresult");
+        //console.log(editorRef.current.editor.dom.hasClass(node,'1'))
+        //let promptNode = editorRef.current.editor.selection.getNode();
+        console.log(node.classList)
         editorRef.current.editor.dom.add(
           node,
           "span",
@@ -52,8 +56,9 @@ function EditorAI(){
   useEffect(() => {
     if (llmImage !== "") {
       updateLlmButtonLocation();
+      const nodeId = 'id'+llmId[llmId.length-1]
       editorRef.current.editor.selection.setContent(
-        `<img src="${llmImage}" width="256" height="256" class="shadow currImg">`
+        `<img src="${llmImage}" width="256" height="256" class="shadow currImg ${nodeId}">`
       );
       editorRef.current.editor.dom.remove('placeHolder')
     }
@@ -62,6 +67,7 @@ function EditorAI(){
   useEffect(() => {
     if (!llmStreaming && llmPrompt !== '') {
      setLlmButtonsVisible(true)
+     console.log(llmPrompts)
     }
   },[llmStreaming,llmPrompt]);
 
@@ -77,12 +83,24 @@ function EditorAI(){
         if (llmPrompt.includes("image") || llmPrompt.includes("picture")) {
           setLlmButtonsTop(nodeRect.top + 20 + "px");
         setLlmButtonsLeft(nodeRect.right - 200 + "px");
-          
         }
       }
     };
   
     async function getLLMResult(promptText, promptNode) {
+      llmPrompts.push(promptText);
+      const idArray = llmId
+      console.log(idArray)
+      let index = -1
+      if(llmId.length === 0){
+            index = -1;
+          }else{
+            index = llmId[llmId.length-1]
+            console.log('array:')
+            console.log(llmId)
+          }
+          llmId.push(index+1)
+          setLlmId(llmId)
       if(editorRef !== ''){
       try {
         editorRef.current.editor.dom.addClass(promptNode, "answer");
@@ -98,7 +116,6 @@ function EditorAI(){
           setLlmImage(images[0]);
           
         } else {
-          //let currRe
           setLlmImage("");
           setLlmContinue(true);
           console.log('PromptText before streaming:')
@@ -110,7 +127,6 @@ function EditorAI(){
               setLlmResult(message.content);
               setLlmStreaming(true);
             },
-            // stop: true,
           });
         }
       } catch (error) {
@@ -128,44 +144,55 @@ function EditorAI(){
   
     const handleLlmButtonAdjust = () => {
       console.log("llm adjust button clicked");
-      //console.log('llmPrompt:')
-        //console.log(llmPrompt)
-      editorRef.current.editor.dom.setHTML(
-        editorRef.current.editor.dom.select(".llmparagraph"),
-        "@ai " + editorRef.current.props.prompt
-      );
-      editorRef.current.editor.dom.removeClass(
-        editorRef.current.editor.dom.select(".llmparagraph"),
-        "llmparagraph"
-      );
-      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
+      let node = editorRef.current.editor.selection.getNode()
+      if (node.nodeName === 'IMG') {
+        let classes = editorRef.current.editor.dom.getParent(node,'img').classList
+        let nodeId = ''
+        for(let i=0;i<classes.length;i++){
+          if(classes[i].includes('id')){
+             nodeId = classes[i]
+          }}
+        let index = Number(nodeId.slice(2))
+        if(nodeId !== ''){
         editorRef.current.editor.dom.remove(
-          editorRef.current.editor.dom.select(".currImg")
+          editorRef.current.editor.dom.select(`.${nodeId}`)
         );
           editorRef.current.editor.selection.setContent(
-          "@ai " + editorRef.current.props.prompt
-        );
-      }
+          "@ai " + llmPrompts[index]
+        );}
+      }else{
+        let classes = editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList
+        editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList.remove('llmparagraph')
+        let nodeId = ''
+        for(let i=0;i<classes.length;i++){
+          if(classes[i].includes('id')){
+             nodeId = classes[i]
+          }
+        }
+        let index = Number(nodeId.slice(2))
+        if (nodeId !== ''){
+          editorRef.current.editor.dom.setHTML(
+            editorRef.current.editor.dom.select(`.${nodeId}`),
+            "@ai " + llmPrompts[index]
+          );
+          
+        }
+
+     }
+    
       setLlmButtonsVisible(false);
       setLlmPrompt("");
     };
   
     const handleLlmButtonInsert = () => {
       console.log("llm insert button clicked");
-      editorRef.current.editor.dom.removeClass(
-        editorRef.current.editor.dom.select(".llmparagraph"),
-        "llmparagraph"
-      );
+      let node = editorRef.current.editor.selection.getNode()
+      console.log(editorRef.current.editor.dom.getParent(node,'.llmparagraph'))
       //console.log(editorRef.current.props.prompt)
-      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
-        editorRef.current.editor.dom.removeClass(
-          editorRef.current.editor.dom.select(".shadow"),
-          "shadow"
-        );
-        editorRef.current.editor.dom.removeClass(
-          editorRef.current.editor.dom.select(".currImg"),
-          "currImg"
-        );
+      if (node.nodeName==='IMG') {
+        editorRef.current.editor.dom.getParent(node,'img').classList.remove('shadow')
+      }else{
+        editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList.remove('llmparagraph')
       }
       setLlmButtonsVisible(false);
 
@@ -174,14 +201,33 @@ function EditorAI(){
   
     const handleLlmButtonDiscard = () => {
       console.log("llm discard button clicked");
-      editorRef.current.editor.dom.remove(
-        editorRef.current.editor.dom.select(".llmparagraph")
-      );
-      if (editorRef.current.props.prompt.includes("image") || editorRef.current.props.prompt.includes("picture")) {
+      let node = editorRef.current.editor.selection.getNode()
+      console.log(node.nodeName)
+      if (node.nodeName==='IMG') {
+      let classes = editorRef.current.editor.dom.getParent(node,'img').classList
+      let nodeId = ''
+      for(let i=0;i<classes.length;i++){
+        if(classes[i].includes('id')){
+           nodeId = classes[i]
+        }
+      if(nodeId!== ''){
         editorRef.current.editor.dom.remove(
-          editorRef.current.editor.dom.select(".currImg")
-        );
+          editorRef.current.editor.dom.select(`.${nodeId}`)
+        );}
       }
+    }else{
+      let classes = editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList
+      let nodeId = ''
+      for(let i=0;i<classes.length;i++){
+        if(classes[i].includes('id')){
+           nodeId = classes[i]
+        }
+      }
+      if (nodeId !== ''){
+      editorRef.current.editor.dom.remove(
+        editorRef.current.editor.dom.select(`.${nodeId}`)
+      );}}
+  
       setLlmButtonsVisible(false);
       setLlmPrompt("");
     };
