@@ -28,7 +28,8 @@ function EditorAI(){
   useEffect(() => {
     if (llmStreaming && llmContinue && editorRef !== "") {
       const nodeArray = editorRef.current.editor.dom.select(".answer");
-      //console.log(nodeArray)
+      console.log('nodeArray:')
+      console.log(nodeArray)
       //console.log("Result:")
       setLlmStopButtonVisible(true);
       const nodeId = 'id'+llmId[llmId.length-1]
@@ -321,13 +322,59 @@ function EditorAI(){
           content_style: " #llmresult { color:gray } .llmparagraph { border: 0px solid; background-color: #fafaf7; padding: 2px 5px; margin: 2px 2px; border-radius: 5px;} .shadow{box-shadow:0 0 15px 15px #F0F0F0;}",
   
       setup: (editor) => {
+        const onAction = (autocompleteApi, rng, value) => {
+      editor.selection.setRng(rng);
+      editor.insertContent(value);
+      autocompleteApi.hide();
+    };
 
+    const getMatchedChars = (pattern) => {
+      let uniquePrompts = [...new Set(llmPrompts)]
+      return uniquePrompts.filter(prompt => prompt.indexOf(pattern) !== -1);
+    };
 
+    //
+    editor.ui.registry.addAutocompleter('prompts', {
+      trigger: '@ai',
+      minChars: 1,
+      //columns: 1,
+      highlightOn: ['char_name'],
+      onAction: onAction,
+      fetch: (pattern) => {
+        return new Promise((resolve) => {
+          const results = getMatchedChars(pattern).map(char => ({
+            type: 'cardmenuitem',
+            value: '@ai'+char,
+            //label: char,
+            items: [
+              {
+                type: 'cardcontainer',
+                direction: 'vertical',
+                items: [
+                  {
+                    type: 'cardtext',
+                    text: char,
+                    name: 'char_name'
+                  }
+                ]
+              }
+            ]
+          }));
+          resolve(results);
+        });
+      }
+    });
+
+//
                     editor.addCommand("reply", async function () {
-                      let promptNode = editor.selection.getNode();
+                      let promptNode = editor.selection.getNode().parentElement;
+                      if(promptNode.nodeName==='BODY'){
+                        promptNode = editor.selection.getNode()
+                      }
                       let promptText = promptNode.textContent
                       console.log('Initial value of PromptText:')
                       console.log(promptNode.textContent)
+                      console.log('node:')
                       console.log(promptNode)
                       getLLMResult(promptText, promptNode);
                     })
