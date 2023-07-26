@@ -26,10 +26,11 @@ function EditorAI(){
     
   
   useEffect(() => {
-    if (llmStreaming && llmContinue && editorRef !== "") {
+    if (llmStreaming && editorRef !== "") {
       const nodeArray = editorRef.current.editor.dom.select(".answer");
       console.log('nodeArray:')
       console.log(nodeArray)
+      console.log(llmResult)
       //console.log("Result:")
       setLlmStopButtonVisible(true);
       const nodeId = 'id'+llmId[llmId.length-1]
@@ -41,12 +42,11 @@ function EditorAI(){
         editorRef.current.editor.dom.remove("llmresult");
         //console.log(editorRef.current.editor.dom.hasClass(node,'1'))
         //let promptNode = editorRef.current.editor.selection.getNode();
-        console.log(node.classList)
         editorRef.current.editor.dom.add(
           node,
           "span",
           { id: "llmresult" },
-          llmResult.replace(/(?:\r\n|\r|\n)/g, "<br>")
+          llmResult[llmId[llmId.length-1]]['result'].replace(/(?:\r\n|\r|\n)/g, "<br>")
         );
       }
     }
@@ -90,6 +90,7 @@ function EditorAI(){
   
     async function getLLMResult(promptText, promptNode) {
       llmPrompts.push(promptText);
+      let newResult = Object.assign(llmResult)
       const idArray = llmId
       console.log(idArray)
       let index = -1
@@ -125,7 +126,8 @@ function EditorAI(){
             messages: [{ role: "user", content: promptText }],
             stream: true,
             onStream: ({ message }) => {
-              setLlmResult(message.content);
+               newResult[llmId[llmId.length-1]]= {'result':message.content}
+              setLlmResult(newResult);
               setLlmStreaming(true);
             },
           });
@@ -205,29 +207,13 @@ function EditorAI(){
       let node = editorRef.current.editor.selection.getNode()
       console.log(node.nodeName)
       if (node.nodeName==='IMG') {
-      let classes = editorRef.current.editor.dom.getParent(node,'img').classList
-      let nodeId = ''
-      for(let i=0;i<classes.length;i++){
-        if(classes[i].includes('id')){
-           nodeId = classes[i]
-        }
-      if(nodeId!== ''){
         editorRef.current.editor.dom.remove(
-          editorRef.current.editor.dom.select(`.${nodeId}`)
-        );}
-      }
+          editorRef.current.editor.dom.getParent(node,'img')
+        );
     }else{
-      let classes = editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList
-      let nodeId = ''
-      for(let i=0;i<classes.length;i++){
-        if(classes[i].includes('id')){
-           nodeId = classes[i]
-        }
-      }
-      if (nodeId !== ''){
       editorRef.current.editor.dom.remove(
-        editorRef.current.editor.dom.select(`.${nodeId}`)
-      );}}
+        editorRef.current.editor.dom.getParent(node,'.llmparagraph')
+      );}
   
       setLlmButtonsVisible(false);
       setLlmPrompt("");
