@@ -255,40 +255,6 @@ function EditorAI(){
                     Stop Generating
                   </Button>
                 </ButtonGroup>
-                {/*<ButtonGroup
-                  size="sm"
-                  style={{
-                    visibility: llmButtonsVisible ? "visible" : "hidden",
-                    top: llmButtonsTop,
-                    left: llmButtonsLeft,
-                    display: llmButtonsVisible ? "flex" : "none",
-                  }}
-                >
-                  <Button
-                    variant="light"
-                    onClick={() => {
-                      handleLlmButtonInsert();
-                    }}
-                  >
-                    Insert
-                  </Button>
-                  <Button
-                    variant="light"
-                    onClick={() => {
-                      handleLlmButtonAdjust();
-                    }}
-                  >
-                    Adjust
-                  </Button>
-                  <Button
-                    variant="light"
-                    onClick={() => {
-                      handleLlmButtonDiscard();
-                    }}
-                  >
-                    Discard
-                  </Button>
-                </ButtonGroup> */}
               </div> 
               <Editor
          apiKey={process.env.REACT_APP_API_KEY}
