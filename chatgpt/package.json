@@ -10,7 +10,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "tinymce": "^6.5.0",
+    "tinymce": "^6.6.0",
     "usellm": "^0.11.1",
     "web-vitals": "^2.1.4"
   },
