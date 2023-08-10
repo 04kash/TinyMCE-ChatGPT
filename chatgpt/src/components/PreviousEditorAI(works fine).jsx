@@ -23,7 +23,7 @@ function EditorAI(){
   //const [llmImage, setLlmImage] = useState("");
   const [llmPrompts, setLlmPrompts] = useState([])
   const [llmId, setLlmId] = useState([])
-    
+  const [templates, setLlmTemplates] = useState(['email', 'travel', 'meeting'])
   
   useEffect(() => {
     if (llmStreaming) {
@@ -46,7 +46,7 @@ function EditorAI(){
           node,
           "span",
           { id: "llmresult" },
-          llmResult.replace(/(?:\r\n|\r|\n)/g, `&nbsp;`)
+          llmResult.replace(/(?:\r\n|\r|\n)/g, `<br>`)
         );
         //node.innerHTML = llmResult
         //[llmId[llmId.length-1]]['result']
@@ -326,31 +326,126 @@ function EditorAI(){
       }
     });
 
-    editor.ui.registry.addGroupToolbarButton('@ai-Templates', {
-      icon: 'templates',
-      text: '@ai Templates',
-      tooltip: 'Select one of these @ai prompt templates to get started!',
-      items: 'email|travel|meeting'
-    });
-    editor.ui.registry.addButton('email', {
-      icon:'envelope',
-      text: 'Email',
-      onAction: (_) => editor.insertContent(`<p>@ai:This is a template.</p>`)
-    });
-    editor.ui.registry.addButton('travel', {
-      icon:'travel',
+    // editor.ui.registry.addGroupToolbarButton('@ai-Templates', {
+    //   icon: 'templates',
+    //   text: '@ai Templates',
+    //   tooltip: 'Select one of these @ai prompt templates to get started!',
+    //   items: templates.join(' ') + ' newTemplates'
+    // });
+
+    var items = [
+      {
+        type: 'menuitem',
+        icon: 'paperclip',
+        text: 'Email',
+        onAction: (_) => editor.insertContent(`<p>@ai:Compose an email addressing the topic of <strong>[INSERT SPECIFIC TOPIC: e.g., Sustainable Travel Practices]</strong> tailored for <strong>[INTENDED RECIPIENT: e.g., Travel Enthusiasts, Corporate Clients]</strong>. Please adopt a <strong>[TONE OF VOICE AND LANGUAGE: e.g., friendly and informative, formal and professional]</strong> tone. Your email should effectively convey key information and engage the recipient.</p>`)
+        },
+      {
+        type: 'menuitem',
+      icon:'paperclip',
       text: 'Travel Itinerary',
-      onAction: (_) => editor.insertContent(`<p>@ai:This is a template.</p>`)
+      onAction: (_) => editor.insertContent(`<p>@ai:Develop a detailed travel itinerary for a <strong>[TYPE OF TRIP: e.g., week-long family vacation, romantic weekend getaway]</strong> to <strong>[DESTINATION: e.g., Paris, Bali]</strong> during the month of <strong>[MONTH OF VISIT: e.g., August]</strong>. Design the itinerary for <strong>[NUMBER OF DAYS: e.g., 5 days]</strong>, focusing on <strong>[TYPE OF ACTIVITIES: e.g., cultural exploration, outdoor adventures, relaxation]</strong>. Ensure that the itinerary includes a balanced mix of <strong>[SPECIFIC TYPES OF ACTIVITIES OR ATTRACTIONS: e.g., museums, hiking trails, local markets]</strong>. </p>`)
+      },
+      {
+        type:'menuitem',
+        icon:'paperclip',
+        text: 'Meeting Agenda',
+      onAction: (_) => editor.insertContent(`<p>@ai:Create a comprehensive meeting agenda for a <strong>[TYPE OF MEETING: e.g., Project Kickoff, Monthly Review]</strong> scheduled on <strong>[DATE AND TIME: e.g., August 15th, 10:00 AM]</strong>. Develop an agenda that covers <strong>[MAIN TOPICS: e.g., progress updates, goal setting, team collaboration]</strong> and ensures active participation. Organize the agenda with clear time allocations for each item and include any <strong>[REQUIRED PREPARATION: e.g., data presentation, research summaries]</strong> necessary. Focus on maintaining a productive approach to facilitate a successful meeting.</p>`)
+      },
+      
+    ];
+
+
+    editor.ui.registry.addMenuButton('@ai-Templates', {
+      icon : 'templates',
+      text: '@ai Templates',
+      fetch: function (callback) {
+        callback(items.concat(      {
+        type: 'menuitem',
+        icon:'plus',
+        text: 'Create New Template',
+      onAction: (_) => editor.windowManager.open(dialogConfig)
+      }));
+      }
     });
-    editor.ui.registry.addButton('meeting', {
-      icon:'meeting',
-      text: 'Meeting Agenda',
-      onAction: (_) => editor.insertContent(`<p>@ai:This is a template.</p>`)
-    });
+
+
+    // editor.ui.registry.addButton('email', {
+    //   icon:'envelope',
+    //   text: 'Email',
+    //   onAction: (_) => editor.insertContent(`<p>@ai:Compose an email addressing the topic of <strong>[INSERT SPECIFIC TOPIC: e.g., Sustainable Travel Practices]</strong> tailored for <strong>[INTENDED RECIPIENT: e.g., Travel Enthusiasts, Corporate Clients]</strong>. Please adopt a <strong>[TONE OF VOICE AND LANGUAGE: e.g., friendly and informative, formal and professional]</strong> tone. Your email should effectively convey key information and engage the recipient.</p>`)
+    // });
+    // editor.ui.registry.addButton('newTemplates', {
+    //   icon:'plus',
+    //   //text: 'Create New Template',
+    //   onAction: (_) => editor.windowManager.open(dialogConfig)
+      
+    // });
+    // editor.ui.registry.addButton('travel', {
+    //   icon:'travel',
+    //   text: 'Travel Itinerary',
+    //   onAction: (_) => editor.insertContent(`<p>@ai:Develop a detailed travel itinerary for a <strong>[TYPE OF TRIP: e.g., week-long family vacation, romantic weekend getaway]</strong> to <strong>[DESTINATION: e.g., Paris, Bali]</strong> during the month of <strong>[MONTH OF VISIT: e.g., August]</strong>. Design the itinerary for <strong>[NUMBER OF DAYS: e.g., 5 days]</strong>, focusing on <strong>[TYPE OF ACTIVITIES: e.g., cultural exploration, outdoor adventures, relaxation]</strong>. Ensure that the itinerary includes a balanced mix of <strong>[SPECIFIC TYPES OF ACTIVITIES OR ATTRACTIONS: e.g., museums, hiking trails, local markets]</strong>. </p>`)
+    // });
+    // editor.ui.registry.addButton('meeting', {
+    //   icon:'meeting',
+    //   text: 'Meeting Agenda',
+    //   onAction: (_) => editor.insertContent(`<p>@ai:Create a comprehensive meeting agenda for a <strong>[TYPE OF MEETING: e.g., Project Kickoff, Monthly Review]</strong> scheduled on <strong>[DATE AND TIME: e.g., August 15th, 10:00 AM]</strong>. Develop an agenda that covers <strong>[MAIN TOPICS: e.g., progress updates, goal setting, team collaboration]</strong> and ensures active participation. Organize the agenda with clear time allocations for each item and include any <strong>[REQUIRED PREPARATION: e.g., data presentation, research summaries]</strong> necessary. Focus on maintaining a productive approach to facilitate a successful meeting.</p>`)
+    // });
     editor.ui.registry.addIcon('templates',"<svg xmlns='http://www.w3.org/2000/svg' height='1em' viewBox='0 0 512 512'><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d='M288 448H64V224h64V160H64c-35.3 0-64 28.7-64 64V448c0 35.3 28.7 64 64 64H288c35.3 0 64-28.7 64-64V384H288v64zm-64-96H448c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H224c-35.3 0-64 28.7-64 64V288c0 35.3 28.7 64 64 64z'/></svg>");
     editor.ui.registry.addIcon('envelope','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M48 64C21.5 64 0 85.5 0 112c0 15.1 7.1 29.3 19.2 38.4L236.8 313.6c11.4 8.5 27 8.5 38.4 0L492.8 150.4c12.1-9.1 19.2-23.3 19.2-38.4c0-26.5-21.5-48-48-48H48zM0 176V384c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V176L294.4 339.2c-22.8 17.1-54 17.1-76.8 0L0 176z"/></svg>')
     editor.ui.registry.addIcon('travel','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
     editor.ui.registry.addIcon('meeting','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M128 0c17.7 0 32 14.3 32 32V64H288V32c0-17.7 14.3-32 32-32s32 14.3 32 32V64h48c26.5 0 48 21.5 48 48v48H0V112C0 85.5 21.5 64 48 64H96V32c0-17.7 14.3-32 32-32zM0 192H448V464c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V192zm64 80v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm128 0v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H208c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V272c0-8.8-7.2-16-16-16H336zM64 400v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H80c-8.8 0-16 7.2-16 16zm144-16c-8.8 0-16 7.2-16 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H208zm112 16v32c0 8.8 7.2 16 16 16h32c8.8 0 16-7.2 16-16V400c0-8.8-7.2-16-16-16H336c-8.8 0-16 7.2-16 16z"/></svg>');
+    editor.ui.registry.addIcon('plus','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z"/></svg>');
+    editor.ui.registry.addIcon('paperclip','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 448 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M364.2 83.8c-24.4-24.4-64-24.4-88.4 0l-184 184c-42.1 42.1-42.1 110.3 0 152.4s110.3 42.1 152.4 0l152-152c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-152 152c-64 64-167.6 64-231.6 0s-64-167.6 0-231.6l184-184c46.3-46.3 121.3-46.3 167.6 0s46.3 121.3 0 167.6l-176 176c-28.6 28.6-75 28.6-103.6 0s-28.6-75 0-103.6l144-144c10.9-10.9 28.7-10.9 39.6 0s10.9 28.7 0 39.6l-144 144c-6.7 6.7-6.7 17.7 0 24.4s17.7 6.7 24.4 0l176-176c24.4-24.4 24.4-64 0-88.4z"/></svg>')
+//adding more templates 
+var dialogConfig =  {
+  title: 'Create A New Template',
+  body: {
+    type: 'panel',
+    items: [
+      {
+        type: 'input',
+        name: 'templateName',
+        label: 'Enter the name of the new template:'
+      },
+      {
+        type: 'input',
+        name: 'templatePrompt',
+        label: 'Enter the prompt:'
+      }
+    ]
+  },
+  buttons: [
+    {
+      type: 'cancel',
+      name: 'closeButton',
+      text: 'Cancel'
+    },
+    {
+      type: 'submit',
+      name: 'submitButton',
+      text: 'Create',
+      primary: true
+    }
+  ],
+  initialData: {
+   templateName: '',
+   templatePrompt: ''
+   },
+  onSubmit: function (api) {
+    var data = api.getData();
+
+    items.push({
+      type:'menuitem',
+      icon:'paperclip',
+      text: data.templateName,
+      onAction: (_) => editor.insertContent(`<p>@ai:${data.templatePrompt} </p>`)
+    });
+    api.close();
+  }
+};
+
+
 //
                     editor.addCommand("reply", async function () {
                       let promptNode = editor.selection.getNode().parentElement;
