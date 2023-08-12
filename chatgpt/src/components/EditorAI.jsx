@@ -16,21 +16,21 @@ function EditorAI(){
   //const [llmButtonsVisible, setLlmButtonsVisible] = useState(false);
   const [llmStopButtonVisible, setLlmStopButtonVisible] = useState(false);
 
-  //const [llmResult, setLlmResult] = useState({});
-  const [llmResult,setLlmResult] = useState('')
+  const [llmResultObj, setLlmResultObj] = useState({});
+  const [currResult,setCurrResult] = useState('')
   const [llmPrompt, setLlmPrompt] = useState("");
   const [llmStreaming, setLlmStreaming] = useState(false);
   //const [llmImage, setLlmImage] = useState("");
   const [llmPrompts, setLlmPrompts] = useState([])
   const [llmId, setLlmId] = useState([])
-  const [templates, setLlmTemplates] = useState(['email', 'travel', 'meeting'])
   
   useEffect(() => {
     if (llmStreaming) {
+      console.log(currResult)
       const nodeArray = editorRef.current.editor.dom.select(".answer");
-      console.log('nodeArray:')
-      console.log(nodeArray)
-      console.log(llmResult)
+      //console.log('nodeArray:')
+      //console.log(nodeArray)
+      //console.log(llmResultObj)
       //console.log("Result:")
       setLlmStopButtonVisible(true);
       const nodeId = 'id'+llmId[llmId.length-1]
@@ -46,13 +46,13 @@ function EditorAI(){
           node,
           "span",
           { id: "llmresult" },
-          llmResult.replace(/(?:\r\n|\r|\n)/g, `<br>`)
+          currResult.replace(/(?:\r\n|\r|\n)/g, `<br>`)
         );
         //node.innerHTML = llmResult
         //[llmId[llmId.length-1]]['result']
       }
     }
-  }, [llmResult, llmStreaming,llmId]);
+  }, [currResult, llmStreaming,llmId]);
 
 
   
@@ -67,8 +67,11 @@ function EditorAI(){
   //   }
   // }, [llmImage]);
 
+ 
+
   useEffect(() => {
     if (!llmStreaming && llmPrompt !== '') {
+      console.log(llmStreaming)
      console.log(llmPrompts)
     }
   },[llmStreaming,llmPrompt,llmPrompts]);
@@ -93,7 +96,7 @@ function EditorAI(){
       const currPrompts = llmPrompts
       currPrompts.push(promptText);
       setLlmPrompts(currPrompts)
-      //let newResult = Object.assign(llmResult)
+      let newResult = Object.assign(llmResultObj)
       const idArray = llmId
       console.log(idArray)
       let index = -1
@@ -106,6 +109,7 @@ function EditorAI(){
           }
           llmId.push(index+1)
           setLlmId(llmId)
+          newResult[llmId[llmId.length-1]]= {'result':'',continue:true}
       if(editorRef !== ''){
       try {
         editorRef.current.editor.dom.addClass(promptNode, "answer");
@@ -129,17 +133,21 @@ function EditorAI(){
             messages: [{ role: "user", content: promptText}],
             stream: true,
             onStream: ({ message }) => {
-               //newResult[llmId[llmId.length-1]]= {'result':message.content,'continue':true}
-              //setLlmResult(newResult);
-              setLlmResult(message.content)
+               newResult[llmId[llmId.length-1]]['result']= message.content
+              setLlmResultObj(newResult);
+              if(llmResultObj[llmId[llmId.length-1]]['continue']){
+              setCurrResult(llmResultObj[llmId[llmId.length-1]]['result'])}
+              //setLlmResult(message.content)
               setLlmStreaming(true);
+              console.log(llmResultObj[llmId[llmId.length-1]]['continue'])
+              console.log(currResult)
             },
           });
         
       } catch (error) {
         console.error("Something went wrong!", error);
       } finally {
-        setLlmStreaming(false);
+        //setLlmStreaming(false);
         const nodeArray = editorRef.current.editor.dom.select(".answer");
         // console.log('finally block' )
         // console.log(nodeArray[0].children)
@@ -229,18 +237,28 @@ function EditorAI(){
     const handleLlmButtonStop = () => {
       console.log("llm stop generating button clicked");
       let node = editorRef.current.editor.selection.getNode()
-      console.log( editorRef.current.editor.dom.getParent(node,'.llmparagraph'))
-      //setLlmContinue(false);
-        // const nodeArray = editorRef.current.editor.dom.select("p.answer");
-        // editorRef.current.editor.dom.removeClass(nodeArray, "answer");
-        // editorRef.current.editor.dom.removeAllAttribs("llmresult");
+      let classes = editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList;
+      
+      let nodeId = ''
+        for(let i=0;i<classes.length;i++){
+          if(classes[i].includes('id')){
+             nodeId = classes[i]
+          }
+        }
+        let index = Number(nodeId.slice(2))
+        if (nodeId !== ''){
+          const newResult = Object.assign(llmResultObj)
+          newResult[index]['continue']= false
+          setLlmResultObj(newResult)
+        }
+
         setLlmStopButtonVisible(false);
     };
   
   
     return (
       <div>
-       <div className="llm-buttons">
+       {/* <div className="llm-buttons">
                 <ButtonGroup
                   size="sm"
                   style={{
@@ -258,7 +276,7 @@ function EditorAI(){
                     Stop Generating
                   </Button>
                 </ButtonGroup>
-              </div> 
+              </div>  */}
               <Editor
          apiKey={process.env.REACT_APP_API_KEY}
         initialValue= "This is the initial content <span><br></span> Hi"
@@ -460,15 +478,23 @@ var dialogConfig =  {
                       getLLMResult(promptText, promptNode);
                     })
                     editor.ui.registry.addButton('Insert',{
-                      text: 'Insert',
+                      icon: "checkmark",
+                      //text: 'Insert',
                       onAction: handleLlmButtonInsert}
                     )
                     editor.ui.registry.addButton('Adjust',{
-                      text: 'Adjust',
+                      icon:"edit-block",
+                      //text: 'Adjust',
                       onAction: handleLlmButtonAdjust}
                     )
+                    editor.ui.registry.addButton('Stop',{
+                      icon:"cancel",
+                      //text: 'Adjust',
+                      onAction: handleLlmButtonStop}
+                    )
                     editor.ui.registry.addButton('Discard',{
-                      text: 'Discard',
+                       icon:"remove",
+                      //text: 'Discard',
                       onAction: handleLlmButtonDiscard}
                     )
                     editor.ui.registry.addButton('LLMRecipes',{icon:'WandMagic', 
@@ -498,9 +524,10 @@ var dialogConfig =  {
       editor.ui.registry.addIcon('IdeaBucket','<svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 384 512"><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M272 384c9.6-31.9 29.5-59.1 49.2-86.2l0 0c5.2-7.1 10.4-14.2 15.4-21.4c19.8-28.5 31.4-63 31.4-100.3C368 78.8 289.2 0 192 0S16 78.8 16 176c0 37.3 11.6 71.9 31.4 100.3c5 7.2 10.2 14.3 15.4 21.4l0 0c19.8 27.1 39.7 54.4 49.2 86.2H272zM192 512c44.2 0 80-35.8 80-80V416H112v16c0 44.2 35.8 80 80 80zM112 176c0 8.8-7.2 16-16 16s-16-7.2-16-16c0-61.9 50.1-112 112-112c8.8 0 16 7.2 16 16s-7.2 16-16 16c-44.2 0-80 35.8-80 80z"/></svg>');
       
      //adding Insert, Adjust and Discard buttons to the context toolbar
+
       editor.ui.registry.addContextToolbar('text', {
       predicate: (node) => editor.dom.hasClass(node,'llmparagraph'),
-      items: 'Insert Adjust Discard',
+      items: 'Insert Adjust Discard Stop',
       position: 'node',
       scope: 'node'
     });

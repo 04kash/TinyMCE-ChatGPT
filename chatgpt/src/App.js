@@ -1,5 +1,5 @@
 import {React} from 'react';
-import EditorAI from './components/PreviousEditorAI(works fine).jsx';
+import EditorAI from './components/EditorAI.jsx';
 
 
 function App() {
