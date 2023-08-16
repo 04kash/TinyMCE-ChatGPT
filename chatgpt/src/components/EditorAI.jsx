@@ -94,7 +94,7 @@ function EditorAI(){
   
     async function getLLMResult(promptText, promptNode) {
       const currPrompts = llmPrompts
-      currPrompts.push(promptText);
+      currPrompts.push(' '+promptText);
       setLlmPrompts(currPrompts)
       let newResult = Object.assign(llmResultObj)
       const idArray = llmId
@@ -314,14 +314,16 @@ function EditorAI(){
 
     //
     editor.ui.registry.addAutocompleter('prompts', {
-      trigger: '@ai:',
+      trigger: '@a',
       minChars: 1,
-      //columns: 1,
       highlightOn: ['char_name'],
       onAction: onAction,
       fetch: (pattern) => {
         return new Promise((resolve) => {
-          const results = getMatchedChars(pattern).map(char => ({
+          let adjustedPattern = pattern.slice(1)
+          console.log(adjustedPattern)
+          if(adjustedPattern!==''){
+          const results = getMatchedChars(adjustedPattern).map(char => ({
             type: 'cardmenuitem',
             value: '@ai:'+char,
             //label: char,
@@ -339,7 +341,7 @@ function EditorAI(){
               }
             ]
           }));
-          resolve(results);
+          resolve(results);}
         });
       }
     });
