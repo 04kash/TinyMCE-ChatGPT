@@ -298,8 +298,8 @@ function EditorAI(){
           toolbar: 'undo redo | formatselect | ' +
           'bold italic backcolor | alignleft aligncenter ' +
           'alignright alignjustify | bullist numlist outdent indent | LLMRecipes IdeaBucket @ai-Templates' ,
-          content_style: " #llmresult { color:gray } .llmparagraph { border: 0px solid; background-color: #fafaf7; padding: 2px 5px; margin: 2px 2px; border-radius: 5px;} .shadow{box-shadow:0 0 15px 15px #F0F0F0;}",
-  
+          content_style: " #llmresult { color:gray }  .shadow{box-shadow:0 0 15px 15px #F0F0F0;}",
+          //.llmparagraph { border: 0px solid; background-color: #fafaf7; padding: 2px 5px; margin: 2px 2px; border-radius: 5px;}
       setup: (editor) => {
         const onAction = (autocompleteApi, rng, value) => {
       editor.selection.setRng(rng);
