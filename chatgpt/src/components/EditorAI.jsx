@@ -178,7 +178,7 @@ function EditorAI(){
       //     editorRef.current.editor.dom.select(`.${nodeId}`)
       //   );
       //     editorRef.current.editor.selection.setContent(
-      //     "@ai:" + llmPrompts[index]
+      //     "@ai" + llmPrompts[index]
       //   );}
       // }else{
         if(editorRef.current.editor.dom.getParent(node,'.llmparagraph')!==null){
@@ -194,7 +194,7 @@ function EditorAI(){
         if (nodeId !== ''){
           editorRef.current.editor.dom.setHTML(
             editorRef.current.editor.dom.select(`.${nodeId}`),
-            "@ai:" + llmPrompts[index]
+            "@ai" + llmPrompts[index]
           );
           
         }
@@ -292,7 +292,7 @@ function EditorAI(){
             'insertdatetime media table paste code help wordcount','textpattern'
           ],
           text_patterns: [
-        {start: '@ai:',cmd:'reply'},
+        {start: '@ai',cmd:'reply'},
 
     ],
           toolbar: 'undo redo | formatselect | ' +
