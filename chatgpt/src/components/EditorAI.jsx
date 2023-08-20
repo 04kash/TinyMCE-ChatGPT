@@ -212,7 +212,15 @@ function EditorAI(){
       //   editorRef.current.editor.dom.getParent(node,'img').classList.remove('shadow')
       // }else{
         if(editorRef.current.editor.dom.getParent(node,'.llmparagraph')!== null){
-        editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList.remove('llmparagraph')
+        //editorRef.current.editor.dom.getParent(node,'.llmparagraph').classList.remove('llmparagraph')
+        editorRef.current.editor.dom.remove(
+          editorRef.current.editor.dom.getParent(node,'.llmparagraph')
+        );
+        console.log(node)
+
+        const currNode = editorRef.current.editor.selection.getNode()
+        console.log(currNode)
+        editorRef.current.editor.insertContent(node.innerHTML)
       }
 
       setLlmPrompt("");
